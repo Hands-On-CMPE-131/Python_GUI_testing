@@ -23,7 +23,7 @@ def deck():
     hearts = 13 * heart
     spades = 13 * spade
     suit = clovers + diamonds + hearts + spades
-    suits = deepcopy(13 * suit)
+    suits = deepcopy(1 * suit)
     random.shuffle(suits)
     return game_deck, suits
 
@@ -112,11 +112,47 @@ def draw_dealer_hand(hand, suits, surface, player_turn):
     rec_total = draw_total.get_rect(center=(250, 240))
     surface.blit(draw_total, rec_total)
 
+def draw_money(surface, player_money, bet_amount):
+    font = pygame.font.Font("resource/Comic_Sans_MS.ttf", 50)
+    balance_font = pygame.font.Font("resource/Comic_Sans_MS.ttf", 28)
+    pygame.draw.rect(surface,(0, 0,0 ), (300, 60, 200, 70), width= 3)
+    draw_player_money = font.render(str(player_money), True, (255,255,255))
+    rect_player_money = draw_player_money.get_rect(center = (400,93))
+    surface.blit(draw_player_money, rect_player_money)
+    draw_money_text = balance_font.render("My Balance", True, (0, 255, 255))
+    rect_money_text = draw_money_text.get_rect(center=(390, 40))
+    surface.blit(draw_money_text, rect_money_text)
+    draw_bet_amount = font.render(str(bet_amount), True, (255, 255, 255))
+    rect_bet_amount = draw_bet_amount.get_rect(center=(660, 93))
+    surface.blit(draw_bet_amount, rect_bet_amount)
+    draw_bet_text = balance_font.render("Bet Amount", True, (0, 255, 255))
+    rect_bet_text = draw_money_text.get_rect(center=(660, 40))
+    surface.blit(draw_bet_text, rect_bet_text)
+
+def add_money(surface):
+    font = pygame.font.Font("resource/Comic_Sans_MS.ttf", 35)
+    add_font = pygame.font.Font("resource/Comic_Sans_MS.ttf", 30)
+    draw_20 = font.render("20", True, (255, 255, 255))
+    rect_20 = draw_20.get_rect(center=(80, 90))
+    surface.blit(draw_20, rect_20)
+    draw_add_text = add_font.render("Add money", True, (0, 255, 255))
+    rect_add_text = draw_add_text.get_rect(center=(80, 40))
+    surface.blit(draw_add_text, rect_add_text)
+    draw_500 = font.render("500", True, (255, 255, 255))
+    rect_500 = draw_20.get_rect(center=(80, 135))
+    surface.blit(draw_500, rect_500)
+    draw_50 = font.render("50", True, (255, 255, 255))
+    rect_50 = draw_50.get_rect(center=(660, 140))
+    surface.blit(draw_50, rect_50)
+
+
 def main():
     player_hand = []
     dealer_hand = []
     player_suit = []
     dealer_suit = []
+    player_money = 200
+    bet_amount = 50
     gamedeck, suits = deck()
     print(gamedeck)
     print(suits)
@@ -130,17 +166,27 @@ def main():
     HEIGHT = 600
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("Black Jack")
-    fps = 60
+    fps = 30
     timer = pygame.time.Clock()
     font = pygame.font.Font("resource/Comic_Sans_MS.ttf", 25)
     bg = pygame.image.load("resource/table.jpg").convert_alpha()
     bg = pygame.transform.smoothscale(bg, (WIDTH, HEIGHT))
+    out_money_image = pygame.image.load("resource/No_money.png").convert_alpha()
+    out_money_image = pygame.transform.smoothscale(out_money_image, (out_money_image.get_width()*.8, out_money_image.get_height()*.8))
     stand_image = pygame.image.load("resource/stand.png").convert_alpha()
     hit_image = pygame.image.load("resource/hit.png").convert_alpha()
     again_image = pygame.image.load("resource/again.png").convert_alpha()
     standbutton = button.Button(100, 496, stand_image, .85)
     hitbutton = button.Button(450, 500, hit_image, .9)
     againbutton = button.Button(285, 500, again_image, 0.7)
+    plus_image = pygame.image.load("resource/triangle_plus.png").convert_alpha()
+    plus_button_20 = button.Button(100, 70, plus_image, .1)
+    minus_image = pygame.image.load("resource/triangle_minus.png").convert_alpha()
+    minus_button_20 = button.Button(10, 70, minus_image, .1)
+    plus_button_500 = button.Button(120, 110, plus_image, .1)
+    minus_button_500 = button.Button(10, 110, minus_image, .1)
+    plus_button_bet_50 = button.Button(685, 120, plus_image, .08)
+    minus_button_bet_50 = button.Button(600, 120, minus_image, .08)
     screen.blit(bg, (0, 0))
 
     player_turn = True
@@ -155,6 +201,48 @@ def main():
                 run = False
                 pygame.quit()
                 exit()
+        draw_money(screen, player_money, bet_amount)
+        add_money(screen)
+        if plus_button_bet_50.draw(screen):
+            bet_amount = bet_amount + 50
+            if bet_amount > player_money:
+                bet_amount = player_money
+            screen.blit(bg, (0, 0))
+            draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+            draw_player_hand(player_hand, player_suit, screen)
+        if minus_button_bet_50.draw(screen):
+            bet_amount = bet_amount - 50
+            if bet_amount <= 50:
+                bet_amount = 50
+            screen.blit(bg, (0, 0))
+            draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+            draw_player_hand(player_hand, player_suit, screen)
+        if minus_button_500.draw(screen):
+            player_money = player_money - 500
+            if player_money <= 0:
+                player_money = 0
+            screen.blit(bg, (0, 0))
+            draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+            draw_player_hand(player_hand, player_suit, screen)
+        if plus_button_500.draw(screen):
+            player_money = player_money + 500
+            print(player_money)
+            screen.blit(bg, (0, 0))
+            draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+            draw_player_hand(player_hand, player_suit, screen)
+        if minus_button_20.draw(screen):
+            player_money = player_money - 20
+            if player_money <= 0:
+                player_money = 0
+            screen.blit(bg, (0, 0))
+            draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+            draw_player_hand(player_hand, player_suit, screen)
+        if plus_button_20.draw(screen):
+            player_money = player_money + 20
+            print(player_money)
+            screen.blit(bg, (0, 0))
+            draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+            draw_player_hand(player_hand, player_suit, screen)
         if game_start:
             draw_player_hand(player_hand, player_suit, screen)
             draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
@@ -171,6 +259,7 @@ def main():
             screen.blit(bg, (0, 0))
             draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
             draw_player_hand(player_hand, player_suit, screen)
+            draw_money(screen, player_money, bet_amount)
 
         if not player_turn and not dealer_turn and not game_restart:
             player_total = calculate_total(player_hand)
@@ -185,27 +274,58 @@ def main():
                 screen.blit(draw_total, rec_total)
             elif player_total == dealer_total:
                 print("tie")
+                draw_total = font.render("Tie", False, (255, 255, 255))
+                rec_total = draw_total.get_rect(center=(100, 450))
+                screen.blit(draw_total, rec_total)
+
             elif player_total > 21:
+                player_money = player_money - bet_amount
                 print("player bust")
                 draw_total = font.render("Player Bust", False, (255, 255, 255))
-                rec_total = draw_total.get_rect(center=(100, 400))
+                rec_total = draw_total.get_rect(center=(140, 400))
+                screen.blit(bg, (0, 0))
                 screen.blit(draw_total, rec_total)
+                draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+                draw_player_hand(player_hand, player_suit, screen)
+                draw_money(screen, player_money, bet_amount)
             elif dealer_total > 21:
                 print("dealer bust")
+                if player_total == 21:
+                    player_money = player_money + (bet_amount * 1.5)
+                else:
+                    player_money = player_money + bet_amount
                 draw_total = font.render("Dealer Bust", False, (255, 255, 255))
                 rec_total = draw_total.get_rect(center=(140, 240))
+                screen.blit(bg, (0, 0))
                 screen.blit(draw_total, rec_total)
+                draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+                draw_player_hand(player_hand, player_suit, screen)
+                draw_money(screen, player_money, bet_amount)
             elif player_total > dealer_total:
                 print("player wins")
+                if player_total == 21:
+                    player_money = player_money + (bet_amount * 1.5)
+                else:
+                    player_money = player_money + bet_amount
                 draw_total = font.render("Player Wins", False, (255, 255, 255))
                 rec_total = draw_total.get_rect(center=(100, 400))
+                screen.blit(bg, (0, 0))
                 screen.blit(draw_total, rec_total)
+                draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+                draw_player_hand(player_hand, player_suit, screen)
+                draw_money(screen, player_money, bet_amount)
             else:
                 print("dealer wins")
                 draw_total = font.render("Dealer Wins", False, (255, 255, 255))
                 rec_total = draw_total.get_rect(center=(140, 240))
+                player_money = player_money - bet_amount
+                screen.blit(bg, (0, 0))
                 screen.blit(draw_total, rec_total)
+                draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
+                draw_player_hand(player_hand, player_suit, screen)
+                draw_money(screen, player_money, bet_amount)
             game_restart = True
+
 
         if game_restart:
             if againbutton.draw(screen):
@@ -218,16 +338,23 @@ def main():
                 dealer_hand = []
                 player_suit = []
                 dealer_suit = []
+                if len(gamedeck) < 10:
+                    print("rebuild deck")
+                    gamedeck, suits = deck()
                 first_deal(gamedeck, player_hand, dealer_hand, suits, player_suit, dealer_suit)
-        if standbutton.draw(screen) and player_turn:
+        if player_money <= 0:
+            screen.blit(out_money_image, (20, 200))
+
+        if standbutton.draw(screen) and player_turn and player_money > 0:
             player_turn = False
             dealer_turn = True
             print('stand')
-        if hitbutton.draw(screen) and player_turn:
+        if hitbutton.draw(screen) and player_turn and player_money > 0:
             screen.blit(bg, (0, 0))
             draw_dealer_hand(dealer_hand, dealer_suit, screen, player_turn)
             deal_card(gamedeck, suits,player_hand, player_suit)
             draw_player_hand(player_hand, player_suit, screen)
+            draw_money(screen, player_money, bet_amount)
             print(player_hand)
             print(player_suit)
             print('hit')
@@ -241,7 +368,7 @@ def main():
                 dealer_turn = True
 
         pygame.display.update()
-       # pygame.display.flip()
+        #pygame.display.flip()
 
 
 if __name__ == "__main__":
